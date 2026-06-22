@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TaxTips Reply Assistant</title>
+  <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+  <style>
+    body { font-family: Segoe UI, sans-serif; font-size: 13px; margin: 0; padding: 12px; background: #f9f9f9; }
+    h2 { font-size: 15px; margin: 0 0 12px; color: #1a5276; }
+    button { background: #1a5276; color: white; border: none; padding: 8px 14px; border-radius: 4px; cursor: pointer; font-size: 13px; width: 100%; margin-bottom: 8px; }
+    button:hover { background: #154360; }
+    button.secondary { background: #aaa; }
+    button.secondary:hover { background: #888; }
+    #status { font-size: 12px; color: #555; margin: 8px 0; min-height: 16px; }
+    #output { background: white; border: 1px solid #ddd; border-radius: 4px; padding: 10px; font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; min-height: 80px; display: none; }
+    #copyBtn { display: none; background: #28a745; }
+    #copyBtn:hover { background: #1e7e34; }
+  </style>
+</head>
+<body>
+  <h2>TaxTips Reply Assistant</h2>
+  <button onclick="generateReply()">⚡ Draft Reply</button>
+  <div id="status">Open an appointment request email, then click Draft Reply.</div>
+  <div id="output"></div>
+  <button id="copyBtn" onclick="copyToClipboard()">📋 Copy to Clipboard</button>
+
+  <script>
+    Office.onReady(function(info) {
+      if (info.host === Office.HostType.Outlook) {
+        document.getElementById('status').textContent = 'Ready — open an appointment email and click Draft Reply.';
+      }
+    });
+
+    async function generateReply() {
+      const status = document.getElementById('status');
+      const output = document.getElementById('output');
+      const copyBtn = document.getElementById('copyBtn');
+
+      output.style.display = 'none';
+      copyBtn.style.display = 'none';
+      status.textContent = 'Reading email...';
+
+      const item = Office.context.mailbox.item;
+      if (!item) {
+        status.textContent = 'No email selected. Please open an appointment request.';
+        return;
+      }
+
+      item.body.getAsync(Office.CoercionType.Text, async function(result) {
+        if (result.status !== Office.AsyncResultStatus.Succeeded) {
+          status.textContent = 'Could not read email body. Please try again.';
+          return;
+        }
+
+        const emailBody = result.value;
+        status.textContent = 'Generating reply with Claude...';
+
+        const firstName = extractField(emailBody, 'First Name') || 'there';
+        const isNew = extractField(emailBody, 'existing TaxTips client').toLowerCase().includes('no');
+        const centrelink = extractField(emailBody, 'Centrelink payments').toLowerCase().includes('yes');
+        const childSupport = extractField(emailBody, 'child support').toLowerCase().includes('yes');
+        const sameDay = extractField(emailBody, 'same-day tax refund').toLowerCase().includes('yes');
+        const dateRaw = extractField(emailBody, 'Date');
+        const timeRaw = extractField(emailBody, 'Time');
+
+        const parsedDate = parseDateStr(dateRaw);
+        const parsedTime = parseTime(timeRaw);
+        const avail = checkAvailability(parsedDate, parsedTime);
+
+        const prompt = `You are a friendly, professional receptionist for TaxTips Campbelltown, a tax return service in Sydney, Australia.
+Draft a warm, concise email reply to a client appointment request. Use Australian English.
+
+BUSINESS RULES:
+- Open Mon-Fri 8:30am-5pm, last appointment 4:30pm
+- Open Sat 9am-12:30pm, last appointment 12pm
+- Closed Sundays
+- No same-day refunds on Saturdays
+- Basic returns start from $150+GST (mention only if fees were asked about)
+- New clients must bring: TFN (tax file number), photo ID, and bank account details
+- Centrelink or child support clients must also bring myGov/Services Australia online credentials
+
+CLIENT DETAILS:
+- Name: ${firstName}
+- New client: ${isNew ? 'Yes' : 'No'}
+- Requested date: ${dateRaw}
+- Requested time: ${timeRaw}
+- Wants same-day refund: ${sameDay ? 'Yes' : 'No'}
+- Centrelink payments: ${centrelink ? 'Yes' : 'No'}
+- Pays child support: ${childSupport ? 'Yes' : 'No'}
+- Availability: ${avail.ok ? 'Within business hours' + (avail.isSat ? ' (Saturday)' : '') : 'OUTSIDE HOURS — ' + avail.msg}
+${sameDay && avail.isSat ? '- NOTE: Same-day refund not available on Saturdays — advise accordingly.' : ''}
+
+Write the reply email body only (no subject line). Start with "Hi ${firstName}," and end with a warm sign-off from "The TaxTips Campbelltown Team". Friendly, brief, no bullet points.`;
+
+        try {
+          const response = await fetch('https://wild-river-82dc.johnritchie6.workers.dev', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', },
+            body: JSON.stringify({
+              model: 'claude-sonnet-4-6',
+              max_tokens: 1000,
+              messages: [{ role: 'user', content: prompt }]
+            })
+          });
+
+          const data = await response.json();
+          const text = data.content?.map(b => b.text || '').join('') || '';
+          if (!text) throw new Error('Empty response');
+
+          output.textContent = text;
+          output.style.display = 'block';
+          copyBtn.style.display = 'block';
+          status.textContent = 'Done! Review then copy into your reply.';
+        } catch(e) {
+          status.textContent = 'Error calling Claude. Check your API key in taskpane.js.';
+        }
+      });
+    }
+
+    function extractField(text, label) {
+      const lines = text.split('\n');
+      for (let i = 0; i < lines.length; i++) {
+        if (lines[i].toLowerCase().includes(label.toLowerCase())) {
+          for (let j = i+1; j <= i+2; j++) {
+            if (j < lines.length && lines[j].trim()) return lines[j].trim();
+          }
+        }
+      }
+      return '';
+    }
+
+    function parseDateStr(raw) {
+      if (!raw) return null;
+      const m = raw.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+      if (!m) return null;
+      const day = parseInt(m[1]), month = parseInt(m[2])-1, year = parseInt(m[3].length===2?'20'+m[3]:m[3]);
+      return new Date(year, month, day);
+    }
+
+    function parseTime(raw) {
+      if (!raw) return null;
+      const m = raw.toLowerCase().match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/);
+      if (!m) return null;
+      let h = parseInt(m[1]), min = parseInt(m[2]||'0'), mer = m[3];
+      if (mer==='pm' && h!==12) h+=12;
+      if (mer==='am' && h===12) h=0;
+      return { h, min };
+    }
+
+    function checkAvailability(date, time) {
+      if (!date || !time) return { ok: true, msg: '' };
+      const dow = date.getDay();
+      const { h, min } = time;
+      const total = h*60+min;
+      if (dow===0) return { ok: false, msg: "we are not open on Sundays. Could you please suggest a weekday between 8:30am–5pm, or Saturday 9am–12:30pm?" };
+      if (dow===6) {
+        if (total < 9*60 || total > 12*60) return { ok: false, msg: "our Saturday hours are 9am–12:30pm with last appointment at 12pm. Could you suggest a time within those hours?" };
+        return { ok: true, isSat: true };
+      }
+      if (total < 8*60+30 || total > 16*60+30) return { ok: false, msg: "our weekday hours are 8:30am–5pm with last appointment at 4:30pm. Could you suggest a time within those hours?" };
+      return { ok: true, isSat: false };
+    }
+
+    function copyToClipboard() {
+      const text = document.getElementById('output').textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        document.getElementById('status').textContent = 'Copied! Paste into your Outlook reply.';
+      });
+    }
+  </script>
+</body>
+</html>
