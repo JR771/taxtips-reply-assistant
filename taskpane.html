@@ -100,7 +100,7 @@ CLIENT DETAILS:
 - Availability: ${avail.ok ? 'Within business hours' + (avail.isSat ? ' (Saturday)' : '') : 'OUTSIDE HOURS — ' + avail.msg}
 ${sameDay && avail.isSat ? '- NOTE: Same-day refund not available on Saturdays — advise accordingly.' : ''}
 
-Write the reply email body only (no subject line). Start with "Hi [name],". Do NOT include any sign-off, closing, or farewell — no "Warm regards", no "Kind regards", nothing. For new client document requirements, always use dot points exactly as follows: "To ensure everything runs smoothly, please bring the following with you:\n• Your TFN (Tax File Number)\n• Photo ID\n• Your bank details for your refund\n\nSince you receive Centrelink payments and/or pay child support, you will also need to bring your myGov and Services Australia online credentials." Keep it brief and professional.
+Write the reply email body only (no subject line). Start with "Hi [name],". Do NOT include any sign-off, closing, or farewell — no "Warm regards", no "Kind regards", nothing. For new client document requirements, always use dot points exactly as follows: "To ensure everything runs smoothly, please bring the following with you:\n• Your TFN (Tax File Number)\n• Photo ID\n• Your bank details for your refund\n\nSince you receive Centrelink payments and/or pay child support, you will also need to bring your myGov and Services Australia online credentials." Keep it brief and professional. `;
         try {
           const response = await fetch('https://wild-river-82dc.johnritchie6.workers.dev', {
             method: 'POST',
