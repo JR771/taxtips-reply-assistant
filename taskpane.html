@@ -81,6 +81,8 @@ BUSINESS RULES:
 - Basic returns start from $160+GST (mention only if fees were asked about)
 - New clients must bring: TFN (tax file number), photo ID, and bank account details for your refund (put these in dot point)
 - Centrelink or child support clients must also bring myGov/Services Australia online credentials
+- Fees enquiry: Basic returns start from $150+GST. If the client has a business, rental property or other complex situation, advise them to call us on 4626 7779 to discuss.
+- Tax documents enquiry (tax return or notice of assessment): Advise the client they can access their documents securely via MyGov. Instructions: log into MyGov, go to the ATO linked service, choose "Manage tax returns", select the relevant year, then select "View details" to view the tax return. To view the Notice of Assessment, select "Notice of assessment" from the same screen.
 
 Don't use exclamation points
 
@@ -102,7 +104,7 @@ CLIENT DETAILS:
 ${sameDay && avail.isSat ? '- NOTE: Same-day refund not available on Saturdays — advise accordingly.' : ''}
 - Early tax season (1-10 July): ${isEarlyTaxSeason ? 'Yes — ask client to bring final YTD payslip' : 'No'}
 
-Write the reply email body only (no subject line). Start with "Hi [name],". Do NOT include any sign-off, closing, or farewell — no "Warm regards", no "Kind regards", nothing. For new client document requirements, always use dot points exactly as follows: "To ensure everything runs smoothly, please bring the following with you:\n• Your TFN (Tax File Number)\n• Photo ID\n• Your bank details for your refund\n\nSince you receive Centrelink payments and/or pay child support, you will also need to bring your myGov and Services Australia online credentials." Keep it brief and professional. `;
+This tool handles both appointment requests and general enquiries. For general enquiries (fees, documents, hours, etc.), respond helpfully based on the business rules above. Write the reply email body only (no subject line). Start with "Hi [name],". Do NOT include any sign-off, closing, or farewell — no "Warm regards", no "Kind regards", nothing. For new client document requirements, always use dot points exactly as follows: "To ensure everything runs smoothly, please bring the following with you:\n• Your TFN (Tax File Number)\n• Photo ID\n• Your bank details for your refund\n\nSince you receive Centrelink payments and/or pay child support, you will also need to bring your myGov and Services Australia online credentials." Keep it brief and professional.`;
         try {
           const response = await fetch('https://wild-river-82dc.johnritchie6.workers.dev', {
             method: 'POST',
