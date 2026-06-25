@@ -68,6 +68,7 @@
         const parsedDate = parseDateStr(dateRaw);
         const parsedTime = parseTime(timeRaw);
         const avail = checkAvailability(parsedDate, parsedTime);
+        const isEarlyTaxSeason = parsedDate && parsedDate.getUTCMonth() === 6 && parsedDate.getUTCDate() <= 10;
 
         const prompt = `You are a friendly, professional receptionist for TaxTips Campbelltown, a tax return service in Sydney, Australia.
 Draft a warm but not overly friendly, concise email reply to a client appointment request. Use Australian English. Don't be overly friendly with email tone, keep it more business like. Do say thank you for reaching out or thank you for your appointment request.
@@ -99,6 +100,7 @@ CLIENT DETAILS:
 - Pays child support: ${childSupport ? 'Yes' : 'No'}
 - Availability: ${avail.ok ? 'Within business hours' + (avail.isSat ? ' (Saturday)' : '') : 'OUTSIDE HOURS — ' + avail.msg}
 ${sameDay && avail.isSat ? '- NOTE: Same-day refund not available on Saturdays — advise accordingly.' : ''}
+- Early tax season (1-10 July): ${isEarlyTaxSeason ? 'Yes — ask client to bring final YTD payslip' : 'No'}
 
 Write the reply email body only (no subject line). Start with "Hi [name],". Do NOT include any sign-off, closing, or farewell — no "Warm regards", no "Kind regards", nothing. For new client document requirements, always use dot points exactly as follows: "To ensure everything runs smoothly, please bring the following with you:\n• Your TFN (Tax File Number)\n• Photo ID\n• Your bank details for your refund\n\nSince you receive Centrelink payments and/or pay child support, you will also need to bring your myGov and Services Australia online credentials." Keep it brief and professional. `;
         try {
@@ -163,7 +165,7 @@ Write the reply email body only (no subject line). Start with "Hi [name],". Do N
       const total = h*60+min;
       if (dow===0) return { ok: false, msg: "we are not open on Sundays. Could you please suggest a weekday between 8:30am–5pm, or Saturday 9am–12:30pm?" };
       if (dow===6) {
-        if (total < 9*60 || total > 12*60) return { ok: false, msg: "our Saturday hours are 9am–12:30pm with last appointment at 12pm. Could you suggest a time within those hours?" };
+        if (total < 8*60+30 || total > 11*60+30) return { ok: false, msg: "our Saturday hours are 8:30am–12:30pm with last appointment at 11:30am. Could you suggest a time within those hours?" };
         return { ok: true, isSat: true };
       }
       if (total < 8*60+30 || total > 16*60+30) return { ok: false, msg: "our weekday hours are 8:30am–5pm with last appointment at 4:30pm. Could you suggest a time within those hours?" };
