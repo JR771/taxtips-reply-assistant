@@ -70,16 +70,24 @@
         const avail = checkAvailability(parsedDate, parsedTime);
 
         const prompt = `You are a friendly, professional receptionist for TaxTips Campbelltown, a tax return service in Sydney, Australia.
-Draft a warm, concise email reply to a client appointment request. Use Australian English.
+Draft a warm but not overly friendly, concise email reply to a client appointment request. Use Australian English. Don't be overly friendly with email tone, keep it more business like. Do say thank you for reaching out or thank you for your appointment request.
 
 BUSINESS RULES:
 - Open Mon-Fri 8:30am-5pm, last appointment 4:30pm
-- Open Sat 9am-12:30pm, last appointment 12pm
+- Open Sat 9am-12:30pm, last appointment 11:30am
 - Closed Sundays
 - No same-day refunds on Saturdays
-- Basic returns start from $150+GST (mention only if fees were asked about)
-- New clients must bring: TFN (tax file number), photo ID, and bank account details
+- Basic returns start from $160+GST (mention only if fees were asked about)
+- New clients must bring: TFN (tax file number), photo ID, and bank account details for your refund (put these in dot point)
 - Centrelink or child support clients must also bring myGov/Services Australia online credentials
+
+Don't use exclamation points
+
+Don't use sign off, not required as we have our own email signature
+
+If they request same day refund, we don't really need to talk about that being a suitable time. Only need to raise the issue if they requested outside acceptable times
+
+For all clients, if they book between 1 July and 10 July, we need to ask them - as you are coming in early in the tax season we will need you to bring along your final YTD (year to date) payslip with you
 
 CLIENT DETAILS:
 - Name: ${firstName}
@@ -99,7 +107,7 @@ Write the reply email body only (no subject line). Start with "Hi ${firstName},"
             method: 'POST',
             headers: { 'Content-Type': 'application/json', },
             body: JSON.stringify({
-              model: 'claude-sonnet-4-6',
+              model: 'claude-haiku-4-5-20251001',
               max_tokens: 1000,
               messages: [{ role: 'user', content: prompt }]
             })
