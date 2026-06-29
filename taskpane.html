@@ -164,7 +164,7 @@ Write the reply email body only (no subject line). Start with "Hi ${firstName},"
       const dow = date.getUTCDay();
       const { h, min } = time;
       const total = h*60+min;
-      if (dow===0) return { ok: false, msg: "we are not open on Sundays. Could you please suggest a weekday between 8:30am–5pm, or Saturday 8:30am–12:30pm in July or August?" };
+      if (dow===0) return { ok: false, msg: "we are not open on Sundays. Could you please suggest a weekday between 8:30am–5pm, or Saturday 9am–12:30pm?" };
       if (dow===6) {
         const month = date.getUTCMonth();
         if (month < 6 || month > 7) return { ok: false, msg: "we are only open Saturdays in July and August. Could you please suggest a weekday between 8:30am–5pm, or a Saturday in July or August?" };
