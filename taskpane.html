@@ -66,7 +66,7 @@
         status.textContent = 'dateRaw=' + dateRaw;
         await new Promise(r => setTimeout(r, 3000));
         const timeRaw = extractField(emailBody, 'Time');
-        const isAppointmentRequest = !!(dateRaw || timeRaw || emailBody.toLowerCase().includes('book an appointment'));
+        alert('dateRaw: ' + dateRaw + ' day: ' + (parseDateStr(dateRaw) ? parseDateStr(dateRaw).getUTCDay() : 'null'));
 
         const parsedDate = parseDateStr(dateRaw);
         const parsedTime = parseTime(timeRaw);
