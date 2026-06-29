@@ -63,6 +63,8 @@
         const childSupport = extractField(emailBody, 'child support').toLowerCase().includes('yes');
         const sameDay = extractField(emailBody, 'same-day tax refund').toLowerCase().includes('yes');
         const dateRaw = extractField(emailBody, 'Date');
+        status.textContent = 'dateRaw=' + dateRaw;
+        await new Promise(r => setTimeout(r, 3000));
         const timeRaw = extractField(emailBody, 'Time');
         const isAppointmentRequest = !!(dateRaw || timeRaw || emailBody.toLowerCase().includes('book an appointment'));
 
