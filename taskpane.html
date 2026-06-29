@@ -72,7 +72,7 @@
         const avail = checkAvailability(parsedDate, parsedTime);
         const isEarlyTaxSeason = parsedDate && parsedDate.getUTCMonth() === 6 && parsedDate.getUTCDate() <= 10;
 
-       
+        const appointmentDetails = isAppointmentRequest ? `
 CLIENT DETAILS:
 - Name: ${firstName}
 - New client: ${isNew ? 'Yes' : 'No'}
