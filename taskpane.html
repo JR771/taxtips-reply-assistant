@@ -66,9 +66,7 @@
         status.textContent = 'dateRaw=' + dateRaw;
         await new Promise(r => setTimeout(r, 3000));
         const timeRaw = extractField(emailBody, 'Time');
-        status.textContent = 'dateRaw: ' + dateRaw + ' day: ' + (parseDateStr(dateRaw) ? parseDateStr(dateRaw).getUTCDay() : 'null');
-await new Promise(r => setTimeout(r, 5000));
-
+        
         const parsedDate = parseDateStr(dateRaw);
         const parsedTime = parseTime(timeRaw);
         const avail = checkAvailability(parsedDate, parsedTime);
