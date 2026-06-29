@@ -64,7 +64,7 @@
         const sameDay = extractField(emailBody, 'same-day tax refund').toLowerCase().includes('yes');
         const dateRaw = extractField(emailBody, 'Date');
         const timeRaw = extractField(emailBody, 'Time');
-        const isAppointmentRequest = !!(dateRaw || timeRaw || emailBody.toLowerCase().includes('book an appointment'));
+        const isAppointmentRequest = !!(dateRaw && timeRaw);
         const parsedDate = parseDateStr(dateRaw);
         const parsedTime = parseTime(timeRaw);
         const avail = checkAvailability(parsedDate, parsedTime);
