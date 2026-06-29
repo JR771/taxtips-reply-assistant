@@ -78,7 +78,7 @@ await new Promise(r => setTimeout(r, 5000));
 CLIENT DETAILS:
 - Name: ${firstName}
 - New client: ${isNew ? 'Yes' : 'No'}
-- Requested date: ${dateRaw}
+- Requested date: ${dateRaw} (${['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][parsedDate ? parsedDate.getUTCDay() : '']})
 - Requested time: ${timeRaw}
 - Wants same-day refund: ${sameDay ? 'Yes' : 'No'}
 - Centrelink payments: ${centrelink ? 'Yes' : 'No'}
