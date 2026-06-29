@@ -56,6 +56,7 @@
 
         const emailBody = result.value;
         status.textContent = 'Generating reply with Claude...';
+        status.textContent = 'Date: ' + parsedDate + ' Day: ' + (parsedDate ? parsedDate.getUTCDay() : 'null');
 
         const firstName = extractField(emailBody, 'First Name') || 'there';
         const isNew = extractField(emailBody, 'existing TaxTips client').toLowerCase().includes('no');
